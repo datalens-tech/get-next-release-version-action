@@ -5,13 +5,21 @@ import { ActionInput, parseActionInput } from "./input";
 
 function getActionInput(): ActionInput {
   return parseActionInput({
-    placeholder: getInput("placeholder"),
+    version_shift: getInput("version_shift"),
+    version_template: getInput("version_template"),
+    version_override: getInput("version_override"),
+    release_version_regexp: getInput("release_version_regexp"),
+    release_filter_target_commitish: getInput("release_filter_target_commitish"),
+    release_filter_prerelease: getInput("release_filter_prerelease"),
+    github_owner: getInput("github_owner"),
+    github_repo: getInput("github_repo"),
+    github_token: getInput("github_token"),
   });
 }
 
 function setActionOutput(actionResult: ActionResult): void {
   info(`Action result: ${JSON.stringify(actionResult)}`);
-  setOutput("placeholder", actionResult.placeholder);
+  setOutput("version", actionResult.version);
 }
 
 async function _main(): Promise<void> {

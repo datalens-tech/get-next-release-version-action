@@ -22,10 +22,10 @@ jobs:
         id: test-run
         uses: ./
         with:
-          placeholder: "test_placeholder"
+          release_version_regexp: 'test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
 
       - name: Assert placeholder
         uses: nick-fields/assert-action@v2
         with:
-          actual: ${{ steps.test-run.outputs.placeholder }}
-          expected: "test_placeholder"
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.3.0"

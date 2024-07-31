@@ -15,15 +15,23 @@ placeholder # TODO: Add example
 
 ### Action Inputs
 
-| Name          | Description  | Default |
-| ------------- | ------------ | ------- |
-| `placeholder` | Placeholder. |         |
+| Name                              | Description                                                                                            | Default                                                     |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `version_shift`                   | Version shift, used to calculate next version `[major, minor, patch]`.                                 | `minor`                                                     |
+| `version_template`                | Version template to use for version parsing, must contain named groups '<major>', '<minor>', '<patch>' | `v$<major>.$<minor>.$<patch>`                               |
+| `version_override`                | Version override, if used then will be output directly.                                                |                                                             |
+| `release_version_regexp`          | Version regexp to use for version parsing, must contain named groups 'major', 'minor', 'patch'.        | `v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$` |
+| `release_filter_target_commitish` | Target commitish filter for latest release.                                                            |                                                             |
+| `release_filter_prerelease`       | Prerelease filter for latest release.                                                                  |                                                             |
+| `github_owner`                    | GitHub owner.                                                                                          | `${{ github.repository_owner }}`                            |
+| `github_repo`                     | GitHub repository.                                                                                     | `${{ github.event.repository.name }}`                       |
+| `github_token`                    | GitHub token.                                                                                          | `${{ github.token }}`                                       |
 
 ### Action Outputs
 
-| Name          | Description  |
-| ------------- | ------------ |
-| `placeholder` | Placeholder. |
+| Name      | Description           |
+| --------- | --------------------- |
+| `version` | Next release version. |
 
 ## Development
 
