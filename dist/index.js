@@ -19,13 +19,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Action = void 0;
 const rest_1 = __nccwpck_require__(1273);
 class GitHubClient {
-    static fromGithubToken(githubToken) {
+    static fromGithubToken(githubToken, logger) {
         return new GitHubClient(new rest_1.Octokit({
             auth: githubToken,
-        }));
+        }), logger);
     }
-    constructor(octokitClient) {
+    constructor(octokitClient, logger) {
         this.octokitClient = octokitClient;
+        this.logger = logger;
     }
     getReleases(owner, repo, perPage, page) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,14 +49,18 @@ class GitHubClient {
             const perPage = 100;
             while (true) {
                 const releases = yield this.getReleases(owner, repo, perPage, page);
+                this.logger(`Fetched ${releases.length} releases from page ${page}`);
                 for (const release of releases) {
                     if (targetCommitish !== "" && release.targetCommitish !== targetCommitish) {
+                        this.logger(`Skipping release ${release.tagName} because target commitish does not match`);
                         continue;
                     }
                     if (prerelease !== null && release.prerelease !== prerelease) {
+                        this.logger(`Skipping release ${release.tagName} because prerelease status does not match`);
                         continue;
                     }
                     if (!releaseVersionRegexp.test(release.tagName)) {
+                        this.logger(`Skipping release ${release.tagName} because it does not match the version regexp`);
                         continue;
                     }
                     return release;
@@ -106,7 +111,7 @@ class Action {
             if (this.options.versionOverride !== "") {
                 return { version: this.options.versionOverride };
             }
-            const githubClient = GitHubClient.fromGithubToken(this.options.githubToken);
+            const githubClient = GitHubClient.fromGithubToken(this.options.githubToken, this.options.logger);
             const latestRelease = yield githubClient.getLatestRelease(this.options.githubOwner, this.options.githubRepo, this.options.releaseFilterTargetCommitish, this.options.releaseFilterPrerelease, this.options.releaseVersionRegexp);
             const newVersion = shiftVersion(latestRelease.tagName, this.options.releaseVersionRegexp, this.options.versionShift, this.options.versionTemplate);
             return { version: newVersion };
@@ -824,8 +829,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n
-        Error Code : ${error.statusCode}\n
+                throw new Error(`Failed to get ID Token. \n 
+        Error Code : ${error.statusCode}\n 
         Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
@@ -30607,7 +30612,7 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -30621,7 +30626,7 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -30630,11 +30635,11 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
@@ -30647,12 +30652,12 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /******/ 			}
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -30663,18 +30668,18 @@ const dist_src_Octokit = Octokit.plugin(requestLog, legacyRestEndpointMethods, p
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/
+/******/ 	
 /************************************************************************/
-/******/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(3109);
 /******/ 	module.exports = __webpack_exports__;
-/******/
+/******/ 	
 /******/ })()
 ;
