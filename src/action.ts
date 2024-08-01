@@ -6,6 +6,10 @@ export interface ActionResult {
   version: string;
 }
 
+interface LogFunction {
+  (message: string): void;
+}
+
 interface ActionOptions {
   versionShift: VersionShiftLiteral;
   versionTemplate: string;
@@ -16,7 +20,7 @@ interface ActionOptions {
   githubOwner: string;
   githubRepo: string;
   githubToken: string;
-  logger: (message: string) => void;
+  logger: LogFunction;
 }
 
 interface Release {
@@ -26,18 +30,21 @@ interface Release {
 }
 
 class GitHubClient {
-  static fromGithubToken(githubToken: string): GitHubClient {
+  static fromGithubToken(githubToken: string, logger: LogFunction): GitHubClient {
     return new GitHubClient(
       new Octokit({
         auth: githubToken,
       }),
+      logger,
     );
   }
 
   private readonly octokitClient: Octokit;
+  private readonly logger: LogFunction;
 
-  constructor(octokitClient: Octokit) {
+  constructor(octokitClient: Octokit, logger: LogFunction) {
     this.octokitClient = octokitClient;
+    this.logger = logger;
   }
 
   async getReleases(owner: string, repo: string, perPage: number, page: number): Promise<Release[]> {
@@ -67,17 +74,21 @@ class GitHubClient {
 
     while (true) {
       const releases = await this.getReleases(owner, repo, perPage, page);
+      this.logger(`Fetched ${releases.length} releases from page ${page}`);
 
       for (const release of releases) {
         if (targetCommitish !== "" && release.targetCommitish !== targetCommitish) {
+          this.logger(`Skipping release ${release.tagName} because target commitish does not match`);
           continue;
         }
 
         if (prerelease !== null && release.prerelease !== prerelease) {
+          this.logger(`Skipping release ${release.tagName} because prerelease status does not match`);
           continue;
         }
 
         if (!releaseVersionRegexp.test(release.tagName)) {
+          this.logger(`Skipping release ${release.tagName} because it does not match the version regexp`);
           continue;
         }
 
@@ -141,7 +152,7 @@ export class Action {
       return { version: this.options.versionOverride };
     }
 
-    const githubClient = GitHubClient.fromGithubToken(this.options.githubToken);
+    const githubClient = GitHubClient.fromGithubToken(this.options.githubToken, this.options.logger);
     const latestRelease = await githubClient.getLatestRelease(
       this.options.githubOwner,
       this.options.githubRepo,
