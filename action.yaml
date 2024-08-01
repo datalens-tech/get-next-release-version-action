@@ -1,0 +1,40 @@
+name: "Get Next Release Version"
+description: "Get Next Release Version Action"
+
+inputs:
+  version_shift:
+    description: "Version shift, used to calculate next version [major, minor, patch]"
+    default: "minor"
+  version_template:
+    description: "Version template to use for version parsing, must contain named groups '{major}', '{minor}', '{patch}'"
+    default: "v{major}.{minor}.{patch}"
+  version_override:
+    description: "Version override, if used then will be output directly"
+  release_version_regexp:
+    description: "Version regexp to use for version parsing, must contain named groups 'major', 'minor', 'patch'"
+    default: '^v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+  release_filter_target_commitish:
+    description: "Target commitish filter for latest release"
+  release_filter_prerelease:
+    description: "Prerelease filter for latest release"
+  github_owner:
+    description: "Owner of the repository"
+    default: ${{ github.repository_owner }}
+  github_repo:
+    description: "Repository name"
+    default: ${{ github.event.repository.name }}
+  github_token:
+    description: "GitHub token"
+    default: ${{ github.token }}
+
+outputs:
+  version:
+    description: "Next release version"
+
+runs:
+  using: node20
+  main: dist/index.js
+
+branding:
+  icon: "tag"
+  color: "gray-dark"
