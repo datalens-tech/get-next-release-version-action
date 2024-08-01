@@ -62,6 +62,17 @@ class GitHubClient {
     }));
   }
 
+  async compareCommits(owner: string, repo: string, base: string, head: string): Promise<string> {
+    const data = await this.octokitClient.repos.compareCommits({
+      owner,
+      repo,
+      base,
+      head,
+    });
+
+    return data.data.status;
+  }
+
   async getLatestRelease(
     owner: string,
     repo: string,
@@ -77,18 +88,27 @@ class GitHubClient {
       this.logger(`Fetched ${releases.length} releases from page ${page}`);
 
       for (const release of releases) {
-        if (targetCommitish !== "" && release.targetCommitish !== targetCommitish) {
-          this.logger(`Skipping release ${release.tagName} because target commitish does not match`);
-          continue;
+        if (targetCommitish !== "") {
+          const status = await this.compareCommits(owner, repo, targetCommitish, release.tagName);
+          if (status !== "behind" && status !== "identical") {
+            this.logger(
+              `Skipping release ${release.tagName} because it is not based on the target commitish(${targetCommitish})`,
+            );
+            continue;
+          }
         }
 
         if (prerelease !== null && release.prerelease !== prerelease) {
-          this.logger(`Skipping release ${release.tagName} because prerelease status does not match`);
+          this.logger(
+            `Skipping release ${release.tagName} because prerelease status does not match, expected ${prerelease}, got ${release.prerelease}`,
+          );
           continue;
         }
 
         if (!releaseVersionRegexp.test(release.tagName)) {
-          this.logger(`Skipping release ${release.tagName} because it does not match the version regexp`);
+          this.logger(
+            `Skipping release ${release.tagName} because it does not match the version regexp(${releaseVersionRegexp})`,
+          );
           continue;
         }
 

@@ -22,7 +22,7 @@ jobs:
         id: test-run
         uses: ./
         with:
-          release_version_regexp: 'test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
 
       - name: Assert placeholder
         uses: nick-fields/assert-action@v2

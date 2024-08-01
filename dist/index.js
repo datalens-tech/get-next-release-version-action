@@ -43,6 +43,17 @@ class GitHubClient {
             }));
         });
     }
+    compareCommits(owner, repo, base, head) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield this.octokitClient.repos.compareCommits({
+                owner,
+                repo,
+                base,
+                head,
+            });
+            return data.data.status;
+        });
+    }
     getLatestRelease(owner, repo, targetCommitish, prerelease, releaseVersionRegexp) {
         return __awaiter(this, void 0, void 0, function* () {
             let page = 1;
@@ -51,16 +62,19 @@ class GitHubClient {
                 const releases = yield this.getReleases(owner, repo, perPage, page);
                 this.logger(`Fetched ${releases.length} releases from page ${page}`);
                 for (const release of releases) {
-                    if (targetCommitish !== "" && release.targetCommitish !== targetCommitish) {
-                        this.logger(`Skipping release ${release.tagName} because target commitish does not match`);
-                        continue;
+                    if (targetCommitish !== "") {
+                        const status = yield this.compareCommits(owner, repo, targetCommitish, release.tagName);
+                        if (status !== "behind" && status !== "identical") {
+                            this.logger(`Skipping release ${release.tagName} because it is not based on the target commitish(${targetCommitish})`);
+                            continue;
+                        }
                     }
                     if (prerelease !== null && release.prerelease !== prerelease) {
-                        this.logger(`Skipping release ${release.tagName} because prerelease status does not match`);
+                        this.logger(`Skipping release ${release.tagName} because prerelease status does not match, expected ${prerelease}, got ${release.prerelease}`);
                         continue;
                     }
                     if (!releaseVersionRegexp.test(release.tagName)) {
-                        this.logger(`Skipping release ${release.tagName} because it does not match the version regexp`);
+                        this.logger(`Skipping release ${release.tagName} because it does not match the version regexp(${releaseVersionRegexp})`);
                         continue;
                     }
                     return release;
