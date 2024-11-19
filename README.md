@@ -3,6 +3,8 @@
 [![CI](https://github.com/datalens-tech/get-next-release-version-action/workflows/Check%20PR/badge.svg)](https://github.com/datalens-tech/get-next-release-version-action/actions?query=workflow%3A%22%22Check+PR%22%22)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Get%20Next%20Release%20Version-blue.svg)](https://github.com/marketplace/actions/get-next-release-version)
 
+Action for automatically generate next release version
+
 Get Next Release Version Action
 
 ## Usage
@@ -10,7 +12,20 @@ Get Next Release Version Action
 ### Example
 
 ```yaml
-placeholder # TODO: Add example
+jobs:
+  get_version:
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Get Version
+        id: get_version
+        uses: datalens-tech/get-next-release-version-action@v1
+        with:
+          version_shift: patch
+          version_override: v1.0.0
+          release_filter_target_commitish: main
 ```
 
 ### Action Inputs
