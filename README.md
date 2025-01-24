@@ -13,14 +13,15 @@ Get Next Release Version Action
 
 ```yaml
 jobs:
-  get_version:
+  get-next-release-version:
     permissions:
       contents: read
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+
     steps:
-      - name: Get Version
-        id: get_version
+      - name: Get Next Release Version
+        id: get-next-release-version
         uses: datalens-tech/get-next-release-version-action@v1
         with:
           version_shift: patch
@@ -52,8 +53,8 @@ jobs:
 
 ### Global dependencies
 
-- nvm
-- node
+- [Taskfile](https://taskfile.dev/installation/)
+- [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script)
 
 ### Taskfile commands
 
