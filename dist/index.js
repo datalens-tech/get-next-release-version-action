@@ -40,6 +40,7 @@ class GitHubClient {
                 tagName: release.tag_name,
                 targetCommitish: release.target_commitish,
                 prerelease: release.prerelease,
+                draft: release.draft,
             }));
         });
     }
@@ -54,7 +55,7 @@ class GitHubClient {
             return data.data.status;
         });
     }
-    getLatestRelease(owner, repo, targetCommitish, prerelease, releaseVersionRegexp) {
+    getLatestRelease(owner, repo, targetCommitish, prerelease, draft, releaseVersionRegexp) {
         return __awaiter(this, void 0, void 0, function* () {
             let page = 1;
             const perPage = 100;
@@ -71,6 +72,10 @@ class GitHubClient {
                     }
                     if (prerelease !== null && release.prerelease !== prerelease) {
                         this.logger(`Skipping release ${release.tagName} because prerelease status does not match, expected ${prerelease}, got ${release.prerelease}`);
+                        continue;
+                    }
+                    if (draft !== null && release.draft !== draft) {
+                        this.logger(`Skipping release ${release.tagName} because draft status does not match, expected ${draft}, got ${release.prerelease}`);
                         continue;
                     }
                     if (!releaseVersionRegexp.test(release.tagName)) {
@@ -126,7 +131,7 @@ class Action {
                 return { version: this.options.versionOverride };
             }
             const githubClient = GitHubClient.fromGithubToken(this.options.githubToken, this.options.logger);
-            const latestRelease = yield githubClient.getLatestRelease(this.options.githubOwner, this.options.githubRepo, this.options.releaseFilterTargetCommitish, this.options.releaseFilterPrerelease, this.options.releaseVersionRegexp);
+            const latestRelease = yield githubClient.getLatestRelease(this.options.githubOwner, this.options.githubRepo, this.options.releaseFilterTargetCommitish, this.options.releaseFilterPrerelease, this.options.releaseFilterDraft, this.options.releaseVersionRegexp);
             const newVersion = shiftVersion(latestRelease.tagName, this.options.releaseVersionRegexp, this.options.versionShift, this.options.versionTemplate);
             return { version: newVersion };
         });
@@ -154,6 +159,7 @@ function parseActionInput(raw) {
         releaseVersionRegexp: new RegExp((0, parse_1.parseNonEmptyString)(raw.release_version_regexp)),
         releaseFilterTargetCommitish: (0, parse_1.parseString)(raw.release_filter_target_commitish),
         releaseFilterPrerelease: (0, parse_1.parseNullableBoolean)(raw.release_filter_prerelease),
+        releaseFilterDraft: (0, parse_1.parseNullableBoolean)(raw.release_filter_draft),
         githubOwner: (0, parse_1.parseNonEmptyString)(raw.github_owner),
         githubRepo: (0, parse_1.parseNonEmptyString)(raw.github_repo),
         githubToken: (0, parse_1.parseNonEmptyString)(raw.github_token),
@@ -189,6 +195,7 @@ function getActionInput() {
         release_version_regexp: (0, core_1.getInput)("release_version_regexp"),
         release_filter_target_commitish: (0, core_1.getInput)("release_filter_target_commitish"),
         release_filter_prerelease: (0, core_1.getInput)("release_filter_prerelease"),
+        release_filter_draft: (0, core_1.getInput)("release_filter_draft"),
         github_owner: (0, core_1.getInput)("github_owner"),
         github_repo: (0, core_1.getInput)("github_repo"),
         github_token: (0, core_1.getInput)("github_token"),

@@ -17,6 +17,7 @@ interface ActionOptions {
   releaseVersionRegexp: RegExp;
   releaseFilterTargetCommitish: string;
   releaseFilterPrerelease: boolean | null;
+  releaseFilterDraft: boolean | null;
   githubOwner: string;
   githubRepo: string;
   githubToken: string;
@@ -27,6 +28,7 @@ interface Release {
   tagName: string;
   targetCommitish: string;
   prerelease: boolean;
+  draft: boolean;
 }
 
 class GitHubClient {
@@ -59,6 +61,7 @@ class GitHubClient {
       tagName: release.tag_name,
       targetCommitish: release.target_commitish,
       prerelease: release.prerelease,
+      draft: release.draft,
     }));
   }
 
@@ -78,6 +81,7 @@ class GitHubClient {
     repo: string,
     targetCommitish: string,
     prerelease: boolean | null,
+    draft: boolean | null,
     releaseVersionRegexp: RegExp,
   ): Promise<Release> {
     let page = 1;
@@ -101,6 +105,13 @@ class GitHubClient {
         if (prerelease !== null && release.prerelease !== prerelease) {
           this.logger(
             `Skipping release ${release.tagName} because prerelease status does not match, expected ${prerelease}, got ${release.prerelease}`,
+          );
+          continue;
+        }
+
+        if (draft !== null && release.draft !== draft) {
+          this.logger(
+            `Skipping release ${release.tagName} because draft status does not match, expected ${draft}, got ${release.prerelease}`,
           );
           continue;
         }
@@ -178,6 +189,7 @@ export class Action {
       this.options.githubRepo,
       this.options.releaseFilterTargetCommitish,
       this.options.releaseFilterPrerelease,
+      this.options.releaseFilterDraft,
       this.options.releaseVersionRegexp,
     );
 

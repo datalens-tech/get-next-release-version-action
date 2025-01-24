@@ -9,6 +9,7 @@ const defaultActionOptions = {
   releaseVersionRegexp: /.*/,
   releaseFilterTargetCommitish: "main",
   releaseFilterPrerelease: null,
+  releaseFilterDraft: null,
   githubOwner: "test_owner",
   githubRepo: "test_repo",
   githubToken: "test_token",

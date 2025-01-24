@@ -8,6 +8,7 @@ export interface RawActionInput {
   release_version_regexp: string;
   release_filter_target_commitish: string;
   release_filter_prerelease: string;
+  release_filter_draft: string;
   github_owner: string;
   github_repo: string;
   github_token: string;
@@ -20,6 +21,7 @@ export interface ActionInput {
   releaseVersionRegexp: RegExp;
   releaseFilterTargetCommitish: string;
   releaseFilterPrerelease: boolean | null;
+  releaseFilterDraft: boolean | null;
   githubOwner: string;
   githubRepo: string;
   githubToken: string;
@@ -33,6 +35,7 @@ export function parseActionInput(raw: RawActionInput): ActionInput {
     releaseVersionRegexp: new RegExp(parseNonEmptyString(raw.release_version_regexp)),
     releaseFilterTargetCommitish: parseString(raw.release_filter_target_commitish),
     releaseFilterPrerelease: parseNullableBoolean(raw.release_filter_prerelease),
+    releaseFilterDraft: parseNullableBoolean(raw.release_filter_draft),
     githubOwner: parseNonEmptyString(raw.github_owner),
     githubRepo: parseNonEmptyString(raw.github_repo),
     githubToken: parseNonEmptyString(raw.github_token),

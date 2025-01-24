@@ -9,6 +9,7 @@ const defaultRawInput = {
   release_version_regexp: ".*",
   release_filter_target_commitish: "test_commitish",
   release_filter_prerelease: "true",
+  release_filter_draft: "true",
   github_owner: "test_owner",
   github_repo: "test_repo",
   github_token: "test_token",
@@ -30,6 +31,7 @@ describe("Input tests", () => {
       releaseVersionRegexp: /.*/,
       releaseFilterTargetCommitish: "test_commitish",
       releaseFilterPrerelease: true,
+      releaseFilterDraft: true,
       githubOwner: "test_owner",
       githubRepo: "test_repo",
       githubToken: "test_token",
@@ -68,6 +70,10 @@ describe("Input tests", () => {
 
   test("parses empty release_filter_prerelease correctly", () => {
     expect(parseActionInput(createRawInput({ release_filter_prerelease: "" })).releaseFilterPrerelease).toBe(null);
+  });
+
+  test("parses empty release_filter_draft correctly", () => {
+    expect(parseActionInput(createRawInput({ release_filter_draft: "" })).releaseFilterDraft).toBe(null);
   });
 
   test("throws error when github_owner is empty", () => {

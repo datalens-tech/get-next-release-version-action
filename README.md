@@ -15,7 +15,7 @@ Get Next Release Version Action
 jobs:
   get-next-release-version:
     permissions:
-      contents: read
+      contents: read # use 'write' if you need draft releases to be used (gh api doesn't provide draft releases for read-only tokens)
     outputs:
       version: ${{ steps.get_version.outputs.version }}
 
@@ -39,6 +39,7 @@ jobs:
 | `release_version_regexp`          | Version regexp to use for version parsing, must contain named groups 'major', 'minor', 'patch'.        | `v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$` |
 | `release_filter_target_commitish` | Target commitish filter for latest release.                                                            |                                                             |
 | `release_filter_prerelease`       | Prerelease filter for latest release.                                                                  |                                                             |
+| `release_filter_draft`            | Draft filter for latest release.                                                                       |                                                             |
 | `github_owner`                    | GitHub owner.                                                                                          | `${{ github.repository_owner }}`                            |
 | `github_repo`                     | GitHub repository.                                                                                     | `${{ github.event.repository.name }}`                       |
 | `github_token`                    | GitHub token.                                                                                          | `${{ github.token }}`                                       |

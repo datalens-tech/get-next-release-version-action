@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -30,12 +30,255 @@ jobs:
           actual: ${{ steps.test-run.outputs.version }}
           expected: "v1.3.0"
 
+  e2e-patch:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.6"
+
+  e2e-no-draft-with-contents-read:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.5"
+
+  e2e-minor:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_shift: "minor"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.3.0"
+
+  e2e-major:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_shift: "major"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v2.0.0"
+
+  e2e-version-template:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_template: "test-version-template-{major}.{minor}.{patch}"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "test-version-template-1.3.0"
+
+  e2e-version-override:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          version_override: "v5.6.7"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v5.6.7"
+
+  e2e-prerelease-filter-false:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # so we don't read the draft release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          release_filter_prerelease: false
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.4"
+
+  e2e-prerelease-filter-true:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # so we don't read the draft release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          release_filter_prerelease: true
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.5"
+
+  e2e-draft-filter-false:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          release_filter_draft: false
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.5"
+
+  e2e-draft-filter-true:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          release_version_regexp: '^test-v?(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+).*$'
+          release_filter_draft: true
+          version_shift: "patch"
+
+      - name: Assert placeholder
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.version }}
+          expected: "v1.2.6"
   e2e:
     runs-on: ubuntu-latest
     if: always() && !cancelled()
 
     needs:
       - e2e-default
+      - e2e-patch
+      - e2e-no-draft-with-contents-read
+      - e2e-minor
+      - e2e-major
+      - e2e-version-template
+      - e2e-version-override
+      - e2e-prerelease-filter-false
+      - e2e-prerelease-filter-true
+      - e2e-draft-filter-false
+      - e2e-draft-filter-true
 
     steps:
       - name: Collect Results
