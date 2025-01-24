@@ -17,6 +17,8 @@ inputs:
     description: "Target commitish filter for latest release"
   release_filter_prerelease:
     description: "Prerelease filter for latest release"
+  release_filter_draft:
+    description: "Draft filter for latest release"
   github_owner:
     description: "Owner of the repository"
     default: ${{ github.repository_owner }}

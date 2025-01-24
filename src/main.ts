@@ -11,6 +11,7 @@ function getActionInput(): ActionInput {
     release_version_regexp: getInput("release_version_regexp"),
     release_filter_target_commitish: getInput("release_filter_target_commitish"),
     release_filter_prerelease: getInput("release_filter_prerelease"),
+    release_filter_draft: getInput("release_filter_draft"),
     github_owner: getInput("github_owner"),
     github_repo: getInput("github_repo"),
     github_token: getInput("github_token"),
