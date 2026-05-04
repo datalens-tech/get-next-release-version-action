@@ -14,9 +14,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Commitlint PR Title
-        uses: ovsds/commitlint-pr-title-action@v1
+        uses: ovsds/commitlint-pr-title-action@a7fcd68b8f503b025ad4ee3ded6b26998cf8c369 # v1.2.0
         with:
           config_file: ./commitlint.config.js
